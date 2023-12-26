@@ -25,6 +25,14 @@ function MyStack() {
         screen: "personalinfo",
       });
     }
+    else if(logindata?.message == 'Login successfull!'){
+      navigation.navigate('PermittedNavigation',{
+          screen: 'appNavigation',
+          params:{
+              screen:'HomeNavigation'
+          }
+      })
+  }
   }, [logindata]);
 
   // console.log('logindata ', logindata)

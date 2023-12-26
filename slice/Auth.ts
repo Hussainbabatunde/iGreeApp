@@ -164,6 +164,7 @@ export const VerifyUserAuthApi = createAsyncThunk(
         .post(`/auth/setup-profile/${setupData?.verifyUserId}`, setupData?.data)
         .then(async (response) => {
           // console.log("setup ", response?.data)
+          AsyncStorage.setItem('token', response?.data?.extra?.token)
           // Alert.alert(response.data?.body)
           return await response.data;
         })

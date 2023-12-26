@@ -38,8 +38,8 @@ const AcceptScreen = () =>{
         <SafeAreaView style={{flex: 1, backgroundColor:'#121212', justifyContent:'space-between'}}>
             
         <View style={{width:'94%', marginLeft:'3%'}}>
-        <TouchableOpacity onPress={()=> navigation.navigate('AuthNavigation',{
-          screen: 'signin'
+        <TouchableOpacity onPress={()=> navigation.navigate('PermittedNavigation',{
+          screen: 'personalinfo'
         })}>
         <Ionicons name="chevron-back" size={35} color="white" />
         </TouchableOpacity>

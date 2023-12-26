@@ -12,6 +12,7 @@ import { reset as resetAuthSlice } from "../../slice/Auth";
 import { LoginAuthApi } from "../../slice/LoginSlice";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from '@react-navigation/stack';
+import ToastManager from "toastify-react-native";
 
 
 
@@ -42,10 +43,15 @@ export default function Signin(){
     useEffect(()=>{
             if(loginData == 'You need to setup your profile'){
                 // router.replace('/personalinfo')
-                navigation.navigate('AppNavigation',{
-                    screen: 'HomeNavigation',
+                navigation.navigate("PermittedNavigation", {
+                    screen: "personalinfo",
+                  });
+            }
+            else if(loginData == 'Login successfull!'){
+                navigation.navigate('PermittedNavigation',{
+                    screen: 'appNavigation',
                     params:{
-                        screen:'dashboard'
+                        screen:'HomeNavigation'
                     }
                 })
             }
@@ -66,6 +72,7 @@ export default function Signin(){
     }
     return (
         <SafeAreaView style={{flex: 1, backgroundColor:'#121212', justifyContent:'space-between'}}>
+            <ToastManager />
             <View style={{width:'94%', marginLeft:'3%', marginTop: 80}}>
             <Text style={{color:'white', fontSize: 30}}>Sign in with Email</Text>
             <Text style={{color:'#AAAAAb', marginTop: 10}}>Enter your credentials</Text>

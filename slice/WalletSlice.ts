@@ -6,40 +6,31 @@ import { FINGERAPP } from "@env";
 import { Alert } from "react-native";
 import { Data } from "./Auth";
 import { Toast } from "toastify-react-native";
+import { TopupType } from "../Navigation/PagesNavigation/wallet";
 
-export interface LoginState {
+export interface WalletState {
     isError: boolean,
   isSuccess: boolean,
   FeedListingLoading: boolean,
   loginmessage: any,
-  logindata: {
-    data:{
-    id: number,
-    firstname: string | null,
-    lastname: string | null,
-    email: string,
-    phonenumber: string | null,
-    username: string | null,
-    has_completed_profile: string | null,
-    wallet_balance: string
-  },
-    message: string
-  } | null,
+  topupdata: {
+    data: string | null
+  } | null
 }
 
 
-const initialState: LoginState = {
+const initialState: WalletState = {
     isError: false,
     isSuccess: false,
     FeedListingLoading: false,
     loginmessage: null,
-    logindata: null
+    topupdata: null
   };
 
 
-export const LoginAuthApi = createAsyncThunk(
-    "loginAuth/userLoginAuth",
-    async (data: Data, { rejectWithValue }) => {
+export const TopupWalletApi = createAsyncThunk(
+    "topupWallet/userTopupwallet",
+    async (data: TopupType, { rejectWithValue }) => {
       // console.log('LoginAuthApi', data)
       const tokengot = await AsyncStorage.getItem("token");
       const infoneeded = `Bearer ${tokengot}`;
@@ -51,13 +42,13 @@ export const LoginAuthApi = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
+          "Authorization": infoneeded
         },
       });
       return await instance
-        .post("auth/login", data)
+        .post("transactions/topup", data)
         .then(async (response) => {
-          // console.log('login ', response?.data)
-          AsyncStorage.setItem('token', response?.data?.extra?.token)
+            console.log('wallet top up ', response?.data)
           // Alert.alert(response.data?.body)
           return await response.data;
         })
@@ -73,8 +64,8 @@ export const LoginAuthApi = createAsyncThunk(
 
   
 
-export const LoginSlice = createSlice({
-    name: "LoginSlice",
+export const WalletSlice = createSlice({
+    name: "WalletSlice",
     initialState,
     reducers: {
       reset: (state) => {
@@ -83,16 +74,16 @@ export const LoginSlice = createSlice({
     },
     extraReducers: (builder) => {
       builder
-        .addCase(LoginAuthApi.pending, (state) => {
+        .addCase(TopupWalletApi.pending, (state) => {
           state.FeedListingLoading = true;
         })
-        .addCase(LoginAuthApi.fulfilled, (state, action) => {
+        .addCase(TopupWalletApi.fulfilled, (state, action) => {
           //   console.log("FeedListingdata ", action.payload);
           state.FeedListingLoading = false;
           state.isSuccess = true;
-          state.logindata = action.payload;
+          state.topupdata = action.payload;
         })
-        .addCase(LoginAuthApi.rejected, (state, action) => {
+        .addCase(TopupWalletApi.rejected, (state, action) => {
           state.FeedListingLoading = false;
           state.isError = true;
           state.loginmessage = action.payload;
@@ -100,7 +91,7 @@ export const LoginSlice = createSlice({
     },
   });
   
-  export const { reset } = LoginSlice.actions;
+  export const { reset } = WalletSlice.actions;
   
   // export const selectLoginSlice = (state) => state.LoginSlice;
-  export default LoginSlice.reducer;
+  export default WalletSlice.reducer;

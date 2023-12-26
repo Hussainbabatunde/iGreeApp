@@ -10,6 +10,7 @@ import HomeNavigation from './PagesNavigation/homeNavigatin';
 import { createStackNavigator } from '@react-navigation/stack';
 import Personalinfo from './AuthNavigation/personalinfo';
 import AcceptScreen from './AuthNavigation/acceptScreen';
+import WalletNavigation from './PagesNavigation/walletNavigation';
 
 /**
  * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -45,8 +46,8 @@ const Tab = createBottomTabNavigator();
         }}
       />
       <Tab.Screen
-        name="wallet"
-        component={Wallet}
+        name="walletNavigation"
+        component={WalletNavigation}
         options={{
           title: 'Tab Two',
           headerShown: false,

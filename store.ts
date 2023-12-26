@@ -8,11 +8,13 @@ import { useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AuthSlice from './slice/Auth'
 import LoginSlice from './slice/LoginSlice'
+import WalletSlice from './slice/WalletSlice'
 
 
 const reducers = combineReducers({
   AuthSlice:AuthSlice,
-  LoginSlice: LoginSlice
+  LoginSlice: LoginSlice,
+  WalletSlice: WalletSlice
 });
 
 const persistConfig = {
