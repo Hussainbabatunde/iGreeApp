@@ -2,17 +2,21 @@ import { SafeAreaView, StyleSheet, Text, Image, TouchableOpacity, View, Dimensio
 
 import EditScreenInfo from '../../components/EditScreenInfo';
 import CustomModal from '../../components/CustomModal';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '../../store';
-import { TopupWalletApi, WalletState } from '../../slice/WalletSlice';
+import { GetTransactionsApi, GetWalletBalanceApi, TopupWalletApi, WalletState } from '../../slice/WalletSlice';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { WebView } from 'react-native-webview';
 import Modal from "react-native-modal";
 import { LoginState } from '../../slice/LoginSlice';
 import {reset as resetWalletSlice} from '../../slice/WalletSlice'
+import {reset as resetLoginSlice} from '../../slice/LoginSlice'
+
+import { FINGERAPP } from "@env";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const { width, height } = Dimensions.get("window");
@@ -32,15 +36,29 @@ export default function Wallet() {
   const dispatch = useDispatch<AppDispatch>()
   const navigation = useNavigation<StackNavigationProp<any>>()
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isloading, setIsLoading] = useState(false)
 
   let Topupdata: TopupType = {
     amount: amt
   }
 
+
   const callback_url = 'https://standard.paystack.co/close';
 
-  const payUrl = useSelector<Statesym>((state)=> state?.WalletSlice?.topupdata?.data)
+  const payUrl = useSelector<Statesym>((state)=> state?.WalletSlice?.topupdata?.data?.url)
+  const payReference = useSelector<Statesym>((state)=> state?.WalletSlice?.topupdata?.data?.reference)
+  const WalletBalance = useSelector<Statesym>((state)=> state?.WalletSlice?.getWallectdata?.data)
   // console.log('wallet pay url ',payUrl)
+
+  useEffect(()=>{
+    const verifyTopup = async ()=>{
+      setIsLoading(true)
+      await dispatch(GetWalletBalanceApi())
+      await dispatch(GetTransactionsApi())
+      setIsLoading(false)
+  }
+    verifyTopup()
+  },[])
 
     const onNavigationStateChange = (state: any) => {
    
@@ -53,6 +71,7 @@ export default function Wallet() {
         // const redirectTo = 'window.location = "' + callback_url + '"';
         // this.webview.injectJavaScript(redirectTo);        
         // dispatch(resetPaymentSlice())
+        // console.log(url)
         setIsModalVisible(false)
       }
           
@@ -75,6 +94,24 @@ export default function Wallet() {
   }
 
   const handleClosePayment = async() =>{
+    try {
+      const tokengot = await AsyncStorage.getItem("token");
+      const backendResponse = await fetch(
+        `${FINGERAPP}transactions/verify/${payReference}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${tokengot}`
+          }
+        }
+      );
+
+      const responseData = await backendResponse.json();
+      // console.log(responseData)
+  } catch (error) {
+    console.log(error)
+  }
     await dispatch(resetWalletSlice())
     setIsModalVisible(false)
     setAmt('')
@@ -82,10 +119,15 @@ export default function Wallet() {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor:'#121212'}}>
+      {isloading?
+      <View style={{flex: 1, justifyContent:'center', alignItems:'center'}}>
+        <ActivityIndicator color='white' size='large' />
+      </View>:
+      <View style={{flex: 1}}>
       <View style={{justifyContent:'center', alignItems:'center'}}>
         <Text style={{ color:'white', fontSize: 20}}>Wallet</Text>
         <Text style={{fontSize: 20, marginTop: 100, color:'white'}}>Wallet Balance</Text>
-        <Text style={{fontSize: 35, color:'white', marginTop: 10}}>₦0.00</Text>
+        <Text style={{fontSize: 35, color:'white', marginTop: 10}}>₦{WalletBalance}</Text>
         </View>
         <View style={{flexDirection:'row', justifyContent:'space-between', marginTop: 80, paddingHorizontal: 15}}>
           <TouchableOpacity onPress={()=> setFreeModalVisible(true)} style={{padding: 20, backgroundColor:'#9058EA', width:'46%', borderRadius: 40}}>
@@ -159,6 +201,7 @@ export default function Wallet() {
                 <Text style={{color:'black', fontSize: 15}}>Close</Text>
              </TouchableOpacity>
                 </Modal>
+                </View>}
     </SafeAreaView>
   );
 }
